@@ -1,0 +1,22 @@
+{
+  "name": "chat_backend",
+  "version": "1.0.0",
+  "description": "This is the chat system backend",
+  "main": "src/server",
+  "scripts": {
+    "dev": "nodemon src/sever.js"
+  },
+  "author": "Shoxrux Rashidov",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-ws": "^5.0.2",
+    "knex": "^0.95.7",
+    "mysql": "^2.18.1",
+    "ws": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

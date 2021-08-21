@@ -1,0 +1,22 @@
+{
+	"private": true,
+	"name": "frontend",
+	"description": "",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "vite --open",
+		"build": "vite build",
+		"serve": "vite preview --open"
+	},
+	"dependencies": {
+		"history": "latest",
+		"react": "latest",
+		"react-dom": "latest",
+		"react-router-dom": "next"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-react-refresh": "latest",
+		"sass": "latest",
+		"vite": "latest"
+	}
+}
