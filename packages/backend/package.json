@@ -9,11 +9,13 @@
   "author": "Shoxrux Rashidov",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-ws": "^5.0.2",
     "knex": "^0.95.7",
     "mysql": "^2.18.1",
+    "node-fetch": "^2.6.1",
     "ws": "^8.2.0"
   },
   "devDependencies": {
