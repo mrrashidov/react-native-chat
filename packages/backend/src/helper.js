@@ -26,6 +26,7 @@ function mergeById(a1, a2) {
 function responseChat(chat) {
     return {
         id: chat.id,
+        productId: chat.hasOwnProperty('product_id') ? chat.product_id : undefined,
         text: chat.message,
         createdAt: chat.created_at,
         user: {
