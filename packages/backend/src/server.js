@@ -16,7 +16,7 @@ const sendMessage = async (message) => {
 	const response = await model.setMessage(message);
 
 	await expoSender({
-		user_id: 1,
+		user_id: parseInt(message.receiverId),
 		title: "New Message",
 		body: "You have New message",
 		data: response
