@@ -3,7 +3,6 @@ const
 	cors = require('cors'),
 	expressWs = require('express-ws'),
 	fetch = require('node-fetch'),
-	bodyParser = require('body-parser'),
 	ws = expressWs(express()),
 	app = ws.app,
 	Message = require('./models/message'),
@@ -58,8 +57,7 @@ async function expoSender(payload) {
 }
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
 app.get('/', (req, res) => res.send('home'));
 
 app.ws('/echo', (ws, request) => {
