@@ -1,8 +1,10 @@
 packages/backend/node_modules
+packages/backend/src/test.js
 packages/web/node_modules
 packages/mobile/node_modules
 packages/mobile/.expo
 packages/backend/package-lock.json
+packages/backend/yarn.lock
 packages/web/package-lock.json
 packages/mobile/package-lock.json
 backend/yarn.lock
