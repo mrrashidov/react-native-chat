@@ -67,7 +67,15 @@ create table chats
     collate = utf8mb4_unicode_ci;
 
 
-
+create table user_devices
+(
+	id            bigint unsigned auto_increment primary key,
+	user_id       bigint  not  null,
+	meta          json         null,
+	created_at    timestamp    null,
+	updated_at    timestamp    null
+)
+	collate = utf8mb4_unicode_ci;
 
 
 
