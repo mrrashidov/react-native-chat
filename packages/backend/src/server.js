@@ -3,6 +3,7 @@ const
 	cors = require('cors'),
 	expressWs = require('express-ws'),
 	fetch = require('node-fetch'),
+	bodyParser = require('body-parser'),
 	ws = expressWs(express()),
 	app = ws.app,
 	Message = require('./Message'),
@@ -14,12 +15,40 @@ const sendMessage = async (message) => {
 	const model = new Message(message.senderId);
 	const response = await model.setMessage(message);
 
+	await expoSender({
+		user_id: 1,
+		title: "New Message",
+		body: "You have New message",
+		data: response
+	}).then(res => console.log('messageSender',res))
 	for (const user of connects) {
 		user.ws.send(JSON.stringify(response));
 	}
 };
 
 async function expoSender(payload) {
+
+	const device = await db.select('token')
+		.from('user_devices')
+		.where({ user_id: payload.user_id }).then(res => {
+			if (res.length > 0)
+				return res[0];
+			return false;
+		}).catch(err => res.status(500).json({
+			errors: true,
+			message: err,
+			exception: { type: 'DATABASE_ERROR' },
+		}));
+
+	if (!device)
+		return {
+			errors: [ {
+				message: 'Please access notification',
+				code: 'VALIDATION_ERROR',
+			} ],
+		};
+	payload.to = device.token;
+
 	return await fetch('https://exp.host/--/api/v2/push/send', {
 		method: 'POST',
 		headers: {
@@ -35,8 +64,8 @@ async function expoSender(payload) {
 }
 
 app.use(cors());
-app.use(express.json());
-
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.get('/', (req, res) => res.send('home'));
 
 app.ws('/echo', (ws, request) => {
@@ -64,7 +93,28 @@ app.get('/device', async (req, res) => {
 });
 
 app.post('/device', async (req, res) => {
-	return res.status(200).json(true);
+	return await db.select('token')
+		.from('user_devices')
+		.where({ token: req.body.token })
+		.then(async (response) => {
+			if (response.length > 0) {
+				return res.status(200).json({ ok: true });
+			}
+			return await db.insert({
+				user_id: 1,
+				token: req.body.token,
+				meta: JSON.stringify(req.headers),
+			}).into('user_devices')
+				.then(() => res.status(200).json({ ok: true }))
+				.catch((err) => {
+					console.log(err);
+					res.status(500).json({
+						errors: true,
+						message: err,
+						exception: { type: 'DATABASE_ERROR' },
+					});
+				});
+		});
 });
 
 app.post('/notification/send', async (req, res) => {
@@ -73,8 +123,8 @@ app.post('/notification/send', async (req, res) => {
 		message,
 		exception: { type: 'VALIDATION_ERROR' },
 	});
-	if (!req.body.hasOwnProperty('to'))
-		return errorBuilder('to required');
+	if (!req.body.hasOwnProperty('user_id'))
+		return errorBuilder('user_id required');
 	if (!req.body.hasOwnProperty('title'))
 		return errorBuilder('title required');
 	if (!req.body.hasOwnProperty('body'))
@@ -83,13 +133,14 @@ app.post('/notification/send', async (req, res) => {
 		return errorBuilder('data required');
 	if (!req.body.hasOwnProperty('sound'))
 		req.body.sound = 'default';
+
 	return await expoSender(req.body).then(response => {
-		if (response.data.status === 'error') {
-			return res.status(400).json({
+		if (response.errors) {
+			return res.status(422).json({
 				errors: true,
-				message: response.data.message,
+				message: response.errors[0].message,
 				exception: {
-					type: response.data.details.error
+					type: response.errors[0].code,
 				},
 			});
 		}
