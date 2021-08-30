@@ -27,7 +27,7 @@ async function registerForPushNotificationsAsync() {
             return;
         }
         token = (await Notifications.getExpoPushTokenAsync()).data;
-        console.log(token);
+
     } else {
         alert('Must use physical device for Push Notifications');
     }
@@ -54,19 +54,16 @@ Notifications.setNotificationHandler({
 
 export default function App() {
 
-    const [loaded, setLoaded] = useState<boolean>(false)
-    useEffect(()=> {
-        if (loaded){
-            sendDevice(expoPushToken).then(() => setLoaded(true))
-        }
-    },[loaded])
     const [expoPushToken, setExpoPushToken] = useState<string|undefined>('');
     const [notification, setNotification] = useState<boolean|object>(false);
-    console.log(notification)
+
     const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
+
     useEffect(() => {
-        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+        registerForPushNotificationsAsync().then(token => {
+					sendDevice({ token: token }).then(() => setExpoPushToken(token))
+				});
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => setNotification(notification));
         responseListener.current = Notifications.addNotificationResponseReceivedListener(notification => setNotification(notification));
         return () => {
