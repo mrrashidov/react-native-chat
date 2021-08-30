@@ -18,7 +18,7 @@ const sendMessage = async (message) => {
 	await expoSender({
 		user_id: parseInt(message.receiverId),
 		title: "New Message",
-		body: "You have New message",
+		body: message.message.length >15 ? message.message.substring(0,15) : message.message,
 		data: response
 	}).then(res => console.log('messageSender',res))
 	for (const user of connects) {
