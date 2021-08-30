@@ -18,7 +18,6 @@ create table users
 create table chat_rooms
 (
     id                   bigint unsigned auto_increment primary key,
-    product_id           bigint  not  null,
     name                 varchar(255) null,
     last_conversation_at datetime     null,
     meta                 json         null,
@@ -50,21 +49,22 @@ create table chat_room_members
 
 create table chats
 (
-    id           bigint unsigned auto_increment primary key,
-    chat_room_id bigint unsigned null,
-    message      longtext        null,
-    user_id      bigint unsigned null,
-    meta         json            null,
-    created_at   timestamp       null,
-    updated_at   timestamp       null,
-    constraint chats_chat_room_id_foreign
-        foreign key (chat_room_id) references chat_rooms (id)
-            on delete cascade,
-    constraint chats_user_id_foreign
-        foreign key (user_id) references users (id)
-            on delete cascade
+	id           bigint unsigned auto_increment primary key,
+	chat_room_id bigint unsigned null,
+	user_id      bigint unsigned null,
+	product_id   bigint  not  null,
+	message      longtext        null,
+	meta         json            null,
+	created_at   timestamp       null,
+	updated_at   timestamp       null,
+	constraint chats_chat_room_id_foreign
+		foreign key (chat_room_id) references chat_rooms (id)
+			on delete cascade,
+	constraint chats_user_id_foreign
+		foreign key (user_id) references users (id)
+			on delete cascade
 )
-    collate = utf8mb4_unicode_ci;
+	collate = utf8mb4_unicode_ci;
 
 
 create table user_devices
