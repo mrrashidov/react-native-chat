@@ -6,7 +6,7 @@ const
 	ws = expressWs(express()),
 	app = ws.app,
 	Message = require('./models/message'),
-	device = require('./models/device'),
+	Device = require('./models/device'),
 	connects = new Set();
 let pingCount;
 
@@ -27,12 +27,8 @@ const sendMessage = async (message) => {
 
 async function expoSender(payload) {
 
-	const device = await device.find(payload.user_id).then(res => {
-		if (res.length > 0)
-			return res[0];
-		return false;
-	}).catch(err => ({ errors: true, message: err, exception: { type: 'DATABASE_ERROR' } }));
-
+	const device = await Device.find(payload.user_id).then(res => res).catch(err => ({ errors: true, message: err, exception: { type: 'DATABASE_ERROR' } }));
+	console.log(device)
 	if (!device)
 		return {
 			errors: [ {
@@ -58,7 +54,7 @@ async function expoSender(payload) {
 
 app.use(cors());
 app.use(express.json());
-app.get('/', (req, res) => res.send('home'));
+app.get('/', async (req, res) => res.status(200).json({ ok:true,message:"Hello Ping" }))
 
 app.ws('/echo', (ws, request) => {
 	const userRef = { ws, lastActiveAt: Date.now() };
@@ -81,7 +77,7 @@ app.ws('/echo', (ws, request) => {
 });
 
 app.post('/device', async (req, res) => {
-	return await device.store(req).then(() => res.status(200).json({ ok: true }))
+	return await Device.store(req).then(() => res.status(200).json({ ok: true }))
 		.catch((err) => res.status(500).json({ errors: true, message: err, exception: { type: 'DATABASE_ERROR' } }))
 });
 

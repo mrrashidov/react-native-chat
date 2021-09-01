@@ -18,9 +18,9 @@ module.exports = new class Devices {
 			.from('user_devices')
 			.where((queryBuilder) => {
 				if (user_id)
-					queryBuilder.where({ user_id })
+					queryBuilder.where({ user_id:user_id })
 				if (token)
-					queryBuilder.orWhere({ token })
-			})
+					queryBuilder.orWhere({ token:token })
+			}).first()
 	}
 }
