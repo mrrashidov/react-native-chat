@@ -2,7 +2,7 @@ const
 	express = require('express'),
 	cors = require('cors'),
 	expressWs = require('express-ws'),
-	fetch = require('node-fetch'),
+	Expo = require('expo-server-sdk'),
 	ws = expressWs(express()),
 	app = ws.app,
 	Message = require('./models/message'),
@@ -27,8 +27,13 @@ const sendMessage = async (message) => {
 
 async function expoSender(payload) {
 
+	if (payload.hasOwnProperty('body'))
+		throw new Error('Body is required')
+	if (payload.hasOwnProperty('title'))
+		throw new Error('Title is required')
+	let expo = new Expo({ accessToken: "token here" });
+
 	const device = await Device.find(payload.user_id).then(res => res).catch(err => ({ errors: true, message: err, exception: { type: 'DATABASE_ERROR' } }));
-	console.log(device)
 	if (!device)
 		return {
 			errors: [ {
@@ -36,20 +41,15 @@ async function expoSender(payload) {
 				code: 'VALIDATION_ERROR',
 			} ],
 		};
-	payload.to = device.token;
+	const message = {
+		to: device,
+		sound: 'default',
+		body: payload.body,
+		title: payload.title,
+		data: payload.data,
+	}
+	await expo.sendPushNotificationsAsync([message]);
 
-	return await fetch('https://exp.host/--/api/v2/push/send', {
-		method: 'POST',
-		headers: {
-			'Accept': 'application/json',
-			'Accept-Encoding': 'gzip, deflate',
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(payload),
-	})
-		.then(res => res.json())
-		.then(json => json)
-		.catch(err => err);
 }
 
 app.use(cors());
